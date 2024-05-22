@@ -14,3 +14,17 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+
+model EventLogs {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  logsLevel         String
+  logDate           DateTime  @default(now())
+  source            Json
+  eventCode         String
+  destination       String
+  environment       String
+  errorDescription  String
+
+  @@index([logDate(sort: Desc)], map: "logDate_idx")
+  @@index([logsLevel], map: "logsLevel_idx")
+}
