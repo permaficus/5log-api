@@ -4,7 +4,9 @@
   "description": "An easy-to-use yet interactive API for bug tracking and log management",
   "main": "src/app.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:model": "npx prisma db push",
+    "start": "tsc && tsc-alias && nodemon dist/src/app.js",
+    "dev": "nodemon src/app.ts"
   },
   "repository": {
     "type": "git",
@@ -35,5 +37,8 @@
     "prisma": "^5.13.0",
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.10"
+  },
+  "nodemonConfig": {
+    "ext": "ts,js,json,env"
   }
 }
