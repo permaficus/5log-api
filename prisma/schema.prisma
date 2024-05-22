@@ -17,7 +17,7 @@ datasource db {
 
 model EventLogs {
   id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  logsLevel         String
+  logLevel          String
   logDate           DateTime  @default(now())
   source            Json
   eventCode         String
@@ -26,5 +26,5 @@ model EventLogs {
   errorDescription  String
 
   @@index([logDate(sort: Desc)], map: "logDate_idx")
-  @@index([logsLevel], map: "logsLevel_idx")
+  @@index([logLevel], map: "logLevel_idx")
 }
