@@ -19,7 +19,7 @@ export declare interface ResponseArguments {
 export type MessageOrigin = {
     queue: string
     routingKey: string
-    webhook?: {
+    fallback?: {
         url: string
         method: string
         headers?: string
