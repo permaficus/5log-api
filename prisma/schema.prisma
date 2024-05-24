@@ -17,6 +17,7 @@ datasource db {
 
 model EventLogs {
   id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  client_id         String
   logLevel          String
   logDate           DateTime  @default(now())
   source            Json
