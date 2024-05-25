@@ -37,6 +37,7 @@ export interface WebhookBodyInterface {
 
 export interface DataSetInterface {
     logLevel: LogLevelString
+    client_id: string
     logDate: Date
     source: object | string[] | []
     eventCode: string
@@ -44,6 +45,14 @@ export interface DataSetInterface {
     environment: string
     errorDescription: string
     messageOrigin?: MessageOrigin
+}
+
+export interface WHDatasetInterface {
+    destination: string
+    status: number
+    requestedAt: Date
+    errorMessage?: string
+    retryAt?: Date
 }
 
 /**
