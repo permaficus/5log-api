@@ -22,7 +22,7 @@ model EventLogs {
   logDate           DateTime  @default(now())
   source            Json
   eventCode         String
-  destination       String
+  destination       String?   @default("N/A")
   environment       String
   errorDescription  String
 
