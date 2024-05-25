@@ -28,4 +28,14 @@ model EventLogs {
 
   @@index([logDate(sort: Desc)], map: "logDate_idx")
   @@index([logLevel], map: "logLevel_idx")
+  @@index([client_id], map: "client_id_idx")
+}
+
+model WebhookLogs {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  destination       String
+  status            Int
+  requestedAt       DateTime
+  errorMessage      String?
+  retryAt           DateTime?
 }
