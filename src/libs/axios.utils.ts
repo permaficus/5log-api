@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { WebhookBodyInterface } from '@/modules';
+import { WebhookBodyInterface } from '@/modules/main';
 import Crypto from 'crypto'
 
 const connector = axios.create()

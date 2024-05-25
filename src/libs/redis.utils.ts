@@ -1,6 +1,6 @@
 import redis from 'redis'
 import { REDIS_URL } from '@/constant/global.config'
-import { RedisArgumentInterface } from '@/modules'
+import { RedisArgumentInterface } from '@/modules/main'
 
 export const redisClient = async () => {
     const client = redis.createClient({

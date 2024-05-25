@@ -4,9 +4,9 @@ import {
     SERVICE_LOCAL_PORT,
     NODE_ENVIRONMENT,
     allowedOrigin
-} from "@/constant/global.config"
-import { router as v1 } from "@/v1/routes/detault"
-import { badRequest } from '@/v1/middlewares/errHandler'
+} from "@/constant/global.config";
+import { router as v1 } from "@/v1/routes/detault";
+import { badRequest } from '@/v1/middlewares/errHandler';
 
 const httpServer: Express = express()
 const httpServerInit = async () => {

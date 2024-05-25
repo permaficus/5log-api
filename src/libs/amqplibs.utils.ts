@@ -5,7 +5,7 @@ import {
     DEFAULT_5LOG_ROUTING_KEY
 } from '@/constant/global.config';
 import EventEmitter from 'events';
-import { BrokerExchangeInterface, QueueTypeInterface } from '@/modules';
+import { BrokerExchangeInterface, QueueTypeInterface } from '@/modules/main';
 
 class RabbitInstance extends EventEmitter {
     connection: any
