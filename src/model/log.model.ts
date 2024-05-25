@@ -1,5 +1,5 @@
 import { DB, prismaErrHandler } from "@/libs/prisma.utils";
-import { DataSetInterface } from "@/modules";
+import { DataSetInterface } from "@/modules/main";
 
 export default class Logging {
     static createEvent = async (payload: DataSetInterface): Promise<any> => {
