@@ -16,13 +16,13 @@ class PrismaError extends Error {
 }
 export const prismaErrHandler = (error: any) => {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        const { meta, code } = error;
+        const { meta, code, message } = error;
         // @ts-ignore
         if (code === 'P2010' && /(kind\: I\/O error)|(connection refused)/gi.test(meta?.message)) {
             throw new PrismaError('We have trouble connecting to our database server, Please try again later', 500);
         }
         // @ts-ignore
-        throw new PrismaError(meta?.cause, 400);
+        throw new PrismaError(meta?.cause || message, 400);
     }
     if (error instanceof Prisma.PrismaClientInitializationError) {
         throw new PrismaError('We have trouble connecting to our database server, Please try again later', 500);
