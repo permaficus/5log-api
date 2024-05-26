@@ -58,3 +58,28 @@ export const collectingLogs = async (req: Request, res: Response, next: NextFunc
         next(error)
     }
 }
+
+export const removeLogs = async (req: Request, res: Response, next: NextFunction) => {
+
+    if (Object.entries(req.body).length == 0) {
+        res.status(400);
+        next(new Error(`Cannot process on empty request - ${req.originalUrl}`));
+        return;
+    }
+
+    const { client_id } = req.headers;
+    try {
+        // @ts-ignore
+        const response: any = await Logging.removingEvent(client_id, req.body.id_list);
+        sendingHttpResponse({
+            res,
+            statusCode: 'SUCCESS',
+            messages: {
+                result: `Removing ${response.count} data`
+            }
+        })
+    } catch (error: any) {
+        res.status(error.statusCode);
+        next(error)
+    }
+}
