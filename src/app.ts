@@ -4,6 +4,10 @@ import {
     SERVICE_LOCAL_PORT, 
     NODE_ENVIRONMENT
 } from "@/libs/service.init";
+import {
+  consumerInit,
+
+} from '@/v1/consumer/rabbitmq'
 import chalk from 'chalk'
 
 const main = async (portNumber: number) => {
@@ -11,7 +15,7 @@ const main = async (portNumber: number) => {
   httpServer.listen(portNumber, () => {
       console.log(
           `-----------------------------------------
-          \n${chalk.black.bgGreenBright(`🚀 5Log Service is Up and Running\n`
+          \n${chalk.black.bgGreenBright(`🚀 5Log HTTP Service is Up and Running\n`
           )}\nMode: ${chalk.blueBright(
             `${NODE_ENVIRONMENT}`
           )}\nURL: ${chalk.blueBright(
@@ -31,3 +35,8 @@ const main = async (portNumber: number) => {
 }
 
 main(+SERVICE_LOCAL_PORT);
+
+// STARTING RabbitClient for listening
+(async() => {
+  await consumerInit();
+})();
