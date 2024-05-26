@@ -27,8 +27,11 @@ export const prismaErrHandler = (error: any) => {
     if (error instanceof Prisma.PrismaClientInitializationError) {
         throw new PrismaError('We have trouble connecting to our database server, Please try again later', 500);
     }
-    if (/code.*404/gi.test(error.message)) {
-        throw new PrismaError(error.message.split('#')[0], 404)
+    if (/code.*[404,401]/gi.test(error.message)) {
+        const errorMessage = error.message.split('#')[0];
+        let errorCode = error.message.split('#')[1];
+        errorCode = errorCode.replace('Code: ', '')
+        throw new PrismaError(errorMessage, +errorCode)
     }
     throw new PrismaError('We have a slight problem with our backend. Please try again later', 500)
 }
