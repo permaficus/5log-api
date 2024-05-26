@@ -39,13 +39,27 @@ export default class Logging {
             prismaErrHandler(error)
         }
     }
-    static removingEvent = async (client_id: string | undefined, eventID: string[]): Promise<object | undefined> => {
+    static removingEvent = async (client_id: string | undefined, eventID: string[] & string): Promise<object | undefined> => {
         try {
-            return await DB.eventLogs.deleteMany({
-                where: {
-                    client_id,
-                    id: { in: eventID }
+            return await DB.$transaction(async (model) => {
+                const count = await model.eventLogs.count({
+                    where: {
+                        client_id: client_id
+                    }
+                })
+                if (count === 0) {
+                    throw new Error(`This request must have client authorization#Code: 401`)
                 }
+                return model.eventLogs.deleteMany({
+                    where: {
+                        client_id,
+                        ...typeof eventID !== 'object' ? {
+                            id: eventID
+                        } : { id: { 
+                            in: eventID } 
+                        }
+                    }
+                })
             })
         } catch (error: any) {
             prismaErrHandler(error)
