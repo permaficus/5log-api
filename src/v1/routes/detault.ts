@@ -14,7 +14,7 @@ router.get('/logs', challengeAuthentication, collectingLogs);
 /**
  * @param: logid / document ID based on mongodb ID
  */
-router.delete('/logs', challengeAuthentication, removeLogs);
+router.delete('/logs/:logsid?', challengeAuthentication, removeLogs);
 /**
  * Error Handling Middleware
  */
