@@ -40,6 +40,6 @@
     "tsc-alias": "^1.8.10"
   },
   "nodemonConfig": {
-    "ext": "ts,js,json,env"
+    "ext": "ts,js,json,env,cjs"
   }
 }
