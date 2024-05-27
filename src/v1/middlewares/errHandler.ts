@@ -1,5 +1,19 @@
 import { Request, Response, NextFunction } from "express";
 
+export const errStatusMessage: any = {
+    400: {
+        message: 'ERR_BAD_REQUEST'
+    },
+    401: {
+        message: 'ERR_UNAUTHORIZED'
+    },
+    500: {
+        message: 'ERR_BAD_SERVICE'
+    },
+    404: {
+        message: 'ERR_NOT_FOUND'
+    }
+}
 export const badRequest = async ( err: any, req: Request, res: Response, next: NextFunction ) => {
     if (err instanceof SyntaxError && 'body' in err) {
         res.status(400).send({
@@ -17,9 +31,12 @@ export const PathNotFound = async (req: Request, res: Response, next: NextFuncti
     next(new Error(`Path Not Found - ${req.originalUrl}`));
 }
 export const errHandler = async (err: any, req: Request, res: Response, next: NextFunction ) => {
-    const statusCode = res.statusCode !== 200 ? res.statusCode : 500
+    if (res.headersSent) {
+        return next(err)
+    }
+    const statusCode = res.statusCode || 500;
     res.status(statusCode).json({
-        status: statusCode == 400 ? 'ERR_BAD_REQUEST' : 'ERR_BAD_SERVICE',
+        status: errStatusMessage[statusCode].message,
         code: statusCode,
         details: err.message
     }).end();
