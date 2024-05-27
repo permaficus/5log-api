@@ -1,85 +1,72 @@
 import { Request, Response, NextFunction } from "express";
 import Logging from "@/model/log.model";
-import { ResponseArguments } from "@/modules/main";
+import { DataProcessingArguments } from "@/modules/main";
+import { sendingHttpResponse } from "@/v1/responder/http";
 
-const sendingHttpResponse = (args: ResponseArguments): void => {
-    const statusCodeNumber = {
-        ...args.statusCode == 'ERR_BAD_REQUEST' && { code: 400 },
-        ...args.statusCode == 'ERR_UNAUTHORIZED' && { code: 401 },
-        ...args.statusCode == 'ERR_BAD_SERVICE' && { code: 500 },
-        ...args.statusCode == 'ERR_NOT_FOUND' && { code: 404 },
-        ...args.statusCode == 'SUCCESS' && { code: 200 }
+export const processingData = async (args: DataProcessingArguments): Promise<void> => {
+    const { client_id }: any = args.headers || args.body;
+    const { logtype, take } = args.body.filter || args.query;
+    const { logsid }: any = args.body.id_list || args.params;
+    const { req, res, next }: any = args.protocol;
+
+    if (args.method === 'POST' && typeof args.protocol == 'object') {
+        Object.assign(args.body, { client_id })
     }
-
-    args.res.status(statusCodeNumber.code).json({
-        status: args.statusCode,
-        code: statusCodeNumber.code,
-        ...args.messages
-    }).end();
-}
-
-export const pushLog = async (req: Request, res: Response, next: NextFunction) => {
-    const { client_id } = req.headers;
-    try {
-        Object.assign(req.body, { client_id })
-        const response = await Logging.createEvent(req.body);
-        sendingHttpResponse({ 
-            res, 
-            statusCode: 'SUCCESS', 
-            messages: { 'details': response } 
-        })
-    } catch (error: any) {
-        res.status(error.statusCode)
-        next(error)
-    }
-}
-
-export const collectingLogs = async (req: Request, res: Response, next: NextFunction) => {
-    const { client_id } = req.headers;
-    const { logtype, take } = req.query;
-    try {
-        const response = await Logging.collectingEvents({
-            // @ts-expect-error
-            client_id,
-            ...req.query && {
-                filter: {
-                    ...logtype && { logtype },
-                    ...take && { take }
-                }
-            }
-        })
-        sendingHttpResponse({
-            res,
-            statusCode: 'SUCCESS',
-            messages: { 'result': response }
-        })
-    } catch (error: any) {
-        res.status(error.statusCode);
-        next(error)
-    }
-}
-
-export const removeLogs = async (req: Request, res: Response, next: NextFunction) => {
-
-    if (Object.entries(req.body).length == 0 && !req.params.logsid) {
-        res.status(400);
+    if (args.method === 'DELETE' && typeof args.protocol == 'object' && !logsid && Object.entries(args.body).length === 0) {
         next(new Error(`Cannot process on empty request - ${req.originalUrl}`));
         return;
     }
 
-    const { client_id } = req.headers;
     try {
-        // @ts-ignore
-        const response: any = await Logging.removingEvent(client_id, req.body.id_list || req.params.logsid);
-        sendingHttpResponse({
-            res,
-            statusCode: 'SUCCESS',
-            messages: {
-                result: `Removing ${response.count} data`
-            }
-        })
+        const taskMap = {
+            ...args.method == 'POST' && { response: await Logging.createEvent(args.body) },
+            ...args.method == 'GET' && { response: await Logging.collectingEvents({
+                client_id,
+                filter: {
+                    ...take && { take },
+                    ...logtype && { logtype }
+                }
+            })},
+            ...args.method == 'DELETE' && { response: await Logging.removingEvent(
+                client_id,
+                logsid
+            )}
+        }
+
+        if (typeof args.protocol == 'object') {
+            sendingHttpResponse({
+                res,
+                statusCode: 'SUCCESS',
+                messages: {
+                    ...args.method == 'POST' && { details: taskMap.response },
+                    ...args.method == 'GET' && { result: taskMap.response },
+                    ...args.method == 'DELETE' && { result: `Removing ${taskMap.response.count} data` }
+                }
+            })
+        }
     } catch (error: any) {
-        res.status(error.statusCode);
-        next(error)
+        console.log(error)
+        if (typeof args.protocol == 'object') {
+            res.status(error.statusCode);
+            next(error);
+            return;
+        }
+
+        // replying back to origin exchange / queue
     }
+}
+
+export const handleHttpRequest = async (req: Request, res: Response, next: NextFunction) => {
+    await processingData({
+        protocol: {
+            req,
+            res,
+            next
+        },
+        method: req.method,
+        body: req.body,
+        headers: req.headers,
+        query: req.query,
+        params: req.params
+    })
 }
