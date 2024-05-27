@@ -2,7 +2,8 @@ import amqplib from 'amqplib';
 import {
     MESSAGE_BROKER_SERVICE,
     DEFAULT_5LOG_EXCHANGE,
-    DEFAULT_5LOG_ROUTING_KEY
+    DEFAULT_5LOG_ROUTING_KEY,
+    DEFAULT_5LOG_QUEUE
 } from '@/constant/global.config';
 import EventEmitter from 'events';
 import { BrokerExchangeInterface, QueueTypeInterface } from '@/modules/main';
@@ -11,21 +12,21 @@ class RabbitInstance extends EventEmitter {
     connection: any
     attempt: number
     maxAttempt: number
-    useClosedConnection: boolean
+    userClosedConnection: boolean
     defaultExchange: string
 
     constructor() {
         super()
-        this.connection = async () => {}
+        this.connection = null
         this.attempt = 0
         this.maxAttempt = 20
-        this.useClosedConnection = false
+        this.userClosedConnection = false
         this.defaultExchange = DEFAULT_5LOG_EXCHANGE
         this.onError = this.onError.bind(this)
         this.onClosed = this.onClosed.bind(this)
     }
     setClosingState = (value: boolean): void => {
-        this.useClosedConnection = value
+        this.userClosedConnection = value
     }
     connect = async () => {
         try {
@@ -38,7 +39,7 @@ class RabbitInstance extends EventEmitter {
             this.connection = conn
             this.attempt = 0
         } catch (error: any) {
-            if (error.code == 'ECONNREFUSED') {
+            if (error.code === 'ECONNREFUSED') {
                 this.emit('ECONNREFUSED', error.message);
                 if (this.attempt >= this.maxAttempt) {
                     return
@@ -81,7 +82,7 @@ class RabbitInstance extends EventEmitter {
     onClosed = (): void => {
         this.connection = null;
         this.emit('close', this.connection);
-        if (!this.useClosedConnection) {
+        if (!this.userClosedConnection) {
             this.reconnect();
         }
     }
@@ -94,6 +95,7 @@ const RabbitMQ = () => {
 export {
     RabbitMQ,
     DEFAULT_5LOG_EXCHANGE,
+    DEFAULT_5LOG_QUEUE,
     DEFAULT_5LOG_ROUTING_KEY,
     MESSAGE_BROKER_SERVICE
 }
