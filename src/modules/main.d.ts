@@ -21,7 +21,7 @@ export interface ResponseArguments {
 export type MessageOrigin = {
     queue: string | undefined
     routingKey: string | undefined
-    message: object
+    message?: object
     fallback?: {
         url: string
         method: string
@@ -62,7 +62,6 @@ export interface DataSetInterface {
     destination?: string
     environment: string
     errorDescription: string
-    messageOrigin?: MessageOrigin
     id_list?: string | string[] | []
 }
 
@@ -104,7 +103,7 @@ export type TaskType = 'POST' | 'GET' | 'DELETE'
 
 export interface MessagePayload {
     task: string | TaskType
-    payload: DataSetInterface
+    payload: DataSetInterface & FetchLogArguments
     origin: MessageOrigin
 }
 
@@ -136,6 +135,7 @@ export interface DataProcessingArguments {
     body: DataSetInterface & FetchLogArguments
     headers?: object
     query?: object
-    params: string | string[] | object | undefined
+    params?: string | string[] | object | undefined
+    origin?: MessageOrigin
 }
 
