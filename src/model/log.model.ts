@@ -15,7 +15,7 @@ export default class Logging {
             prismaErrHandler(error)
         }
     }
-    static collectingEvents = async ({...args}: FetchLogArguments): Promise<object | undefined> => {
+    static collectingEvents = async (args: FetchLogArguments): Promise<object | undefined> => {
         try {
             return await DB.eventLogs.findMany({
                 where: {
@@ -39,7 +39,7 @@ export default class Logging {
             prismaErrHandler(error)
         }
     }
-    static removingEvent = async (client_id: string | undefined, eventID: string[] & string): Promise<object | undefined> => {
+    static removingEvent = async (client_id: string | undefined, eventID: string[] & string): Promise<object | any | undefined> => {
         try {
             return await DB.$transaction(async (model) => {
                 const count = await model.eventLogs.count({
