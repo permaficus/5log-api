@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import Logging from "@/model/log.model";
 import { DataProcessingArguments } from "@/modules/main";
 import { sendingHttpResponse } from "@/v1/responder/http";
+import { publishMessage } from "@/v1/responder/amqp";
+import { errStatusMessage } from "@/v1/middlewares/errHandler";
 
 export const processingData = async (args: DataProcessingArguments): Promise<void> => {
     const { client_id }: any = args.headers || args.body;
@@ -33,26 +35,46 @@ export const processingData = async (args: DataProcessingArguments): Promise<voi
             )}
         }
 
+        const respondMessage = {
+            ...args.method == 'POST' && { details: taskMap.response },
+            ...args.method == 'GET' && { result: taskMap.response },
+            ...args.method == 'DELETE' && { result: `Removing ${taskMap.response.count} data` }
+        }
+
         if (typeof args.protocol == 'object') {
             sendingHttpResponse({
                 res,
                 statusCode: 'SUCCESS',
-                messages: {
-                    ...args.method == 'POST' && { details: taskMap.response },
-                    ...args.method == 'GET' && { result: taskMap.response },
-                    ...args.method == 'DELETE' && { result: `Removing ${taskMap.response.count} data` }
+                messages: {...respondMessage}
+            })
+        }
+        if (typeof args.protocol === 'string') {
+            await publishMessage({
+                queue: args.body.messageOrigin?.queue,
+                routingKey: args.body.messageOrigin?.routingKey,
+                message: {
+                    status: 'SUCCESS',
+                    code: 200,
+                    ...respondMessage
                 }
             })
         }
     } catch (error: any) {
-        console.log(error)
         if (typeof args.protocol == 'object') {
             res.status(error.statusCode);
             next(error);
             return;
         }
-
-        // replying back to origin exchange / queue
+        // replying back to origin exchange / queue=
+        await publishMessage({
+            queue: args.body.messageOrigin?.queue,
+            routingKey: args.body.messageOrigin?.routingKey,
+            message: {
+                status: errStatusMessage[error.statusCode].message,
+                code: error.statusCode,
+                details: error.message
+            }
+        })
     }
 }
 
