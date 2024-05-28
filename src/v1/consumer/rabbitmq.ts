@@ -2,11 +2,16 @@ import {
     RabbitMQ,
     DEFAULT_5LOG_EXCHANGE,
     DEFAULT_5LOG_ROUTING_KEY,
+    DEFAULT_5LOG_REPLY_QUEUE,
+    DEFAULT_5LOG_REPLY_ROUTE,
     DEFAULT_5LOG_QUEUE,
     MESSAGE_BROKER_SERVICE
 } from "@/libs/amqplibs.utils";
-import * as dataHandler from "@/v1/worker/requestHandler";
+import { MessagePayload } from "@/modules/main";
+import { processingData } from "@/v1/worker/requestHandler";
 import chalk from 'chalk'
+import { validateIncommingMessage } from "../middlewares/requestValidators";
+import { publishMessage } from "../responder/amqp";
 
 export const consumerInit = async () => {
     const rbmq = RabbitMQ();
@@ -35,11 +40,37 @@ export const consumerInit = async () => {
         await channel.bindQueue(DEFAULT_5LOG_QUEUE, exchange, DEFAULT_5LOG_ROUTING_KEY)
         await channel.consume(DEFAULT_5LOG_QUEUE, async (msg: any) => {
             if (msg) {
+                /**
+                 * TODO!
+                 * * We need a token or reference ID to prevent duplicate payloads from being 
+                 * * stored in case of a connection failure on RabbitMQ.
+                 */
+
                 /** deconstructing message payload */
-                const { task, origin, payload } = JSON.parse(msg.content);
+                const { task, origin, payload }: MessagePayload = JSON.parse(msg.content);
+                /**
+                 * Validating incomming message
+                 */
+                await validateIncommingMessage({task, origin, payload}, async (error: any) => {
+                    if (error) {
+                        await publishMessage({
+                            queue: origin.queue || DEFAULT_5LOG_REPLY_QUEUE,
+                            routingKey: origin.routingKey || DEFAULT_5LOG_REPLY_ROUTE,
+                            message: JSON.parse(error)
+                        })
+                        channel.ack(msg)
+                        return;
+                    }
+                });
+
                 try {
                     // start processing incomming message
-                    
+                    await processingData({
+                        protocol: 'amqp',
+                        method: task,
+                        body: payload,
+                        origin
+                    })
                     channel.ack(msg)
                 } catch (error: any) {
                     const errObject = JSON.parse(error.message)
