@@ -4,14 +4,24 @@ import { NextFunction, Request, Response } from "express";
 
 // validation middleware for amqp protocol
 export const validateIncommingMessage = async (msg: MessagePayload, callback: CallbackFunction) => {
+
     if (Object.entries(msg.payload).length === 0) {
-        return callback(new Error(`Cannot process on empty request`))
+        return callback(JSON.stringify({
+            status: 'ERR_BAD_REQUEST',
+            code: 400,
+            details: `Cannot process an empty request`
+        }))
     }
     try {
         await validateSchema(msg, 'amqp');
         return callback(null)
     } catch (error: any) {
-        return callback(error)
+        let _sco = error instanceof ValidationError;
+        return callback(JSON.stringify({
+            status: _sco ? 'VALIDATION_ERROR' : 'ERR_UNKNOWN',
+            code: _sco ? 400 : error.code || 'n/a',
+            details: _sco ? error.message.replce(/"/g, '') : error.message
+        }))
     }
 }
 // validation middleware for http protocol
