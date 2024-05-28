@@ -37,7 +37,7 @@ export const processingData = async (args: DataProcessingArguments): Promise<voi
 
         const respondMessage = {
             ...args.method == 'POST' && { details: taskMap.response },
-            ...args.method == 'GET' && { result: taskMap.response },
+            ...args.method == 'GET' && { data: taskMap.response },
             ...args.method == 'DELETE' && { result: `Removing ${taskMap.response.count} data` }
         }
 
@@ -50,8 +50,8 @@ export const processingData = async (args: DataProcessingArguments): Promise<voi
         }
         if (typeof args.protocol === 'string') {
             await publishMessage({
-                queue: args.body.messageOrigin?.queue,
-                routingKey: args.body.messageOrigin?.routingKey,
+                queue: args.origin?.queue,
+                routingKey: args.origin?.routingKey,
                 message: {
                     status: 'SUCCESS',
                     code: 200,
@@ -67,14 +67,16 @@ export const processingData = async (args: DataProcessingArguments): Promise<voi
         }
         // replying back to origin exchange / queue=
         await publishMessage({
-            queue: args.body.messageOrigin?.queue,
-            routingKey: args.body.messageOrigin?.routingKey,
+            queue: args.origin?.queue,
+            routingKey: args.origin?.routingKey,
             message: {
                 status: errStatusMessage[error.statusCode].message,
                 code: error.statusCode,
                 details: error.message
             }
-        })
+        });
+        // this throwing new Error is for triggering the nack.msg on consumer
+        throw new Error(error.message)
     }
 }
 

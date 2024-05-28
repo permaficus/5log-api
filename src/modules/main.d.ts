@@ -55,6 +55,7 @@ export interface FetchLogArguments {
 
 export interface DataSetInterface {
     logLevel: LogLevelString
+    logTicket: string
     client_id: string
     logDate: Date
     source: object | ErrorSourceProps
@@ -138,4 +139,10 @@ export interface DataProcessingArguments {
     params?: string | string[] | object | undefined
     origin?: MessageOrigin
 }
+
+/**
+ * callback type
+ */
+
+export type CallbackFunction = (error: any) => void
 
