@@ -1,7 +1,7 @@
 import {
     RabbitMQ,
-    DEFAULT_5LOG_QUEUE,
-    DEFAULT_5LOG_ROUTING_KEY,
+    DEFAULT_5LOG_REPLY_QUEUE,
+    DEFAULT_5LOG_REPLY_ROUTE,
     MESSAGE_BROKER_SERVICE
 } from "@/libs/amqplibs.utils";
 import { MessageOrigin } from "@/modules/main";
@@ -12,8 +12,8 @@ export const publishMessage = async (options: MessageOrigin) => {
     rbmq.connect();
     rbmq.on('connected', async (EventListener) => {
         const { channel, conn } = EventListener;
-        const targetQueue = options.queue || DEFAULT_5LOG_QUEUE;
-        const targetRoutingKey = options.routingKey || DEFAULT_5LOG_ROUTING_KEY;
+        const targetQueue = options.queue || DEFAULT_5LOG_REPLY_QUEUE;
+        const targetRoutingKey = options.routingKey || DEFAULT_5LOG_REPLY_ROUTE;
         const exchange = await rbmq.initiateExchange({
             name: null, 
             type: 'direct',
