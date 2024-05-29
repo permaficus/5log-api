@@ -6,15 +6,11 @@ import { validateRequest } from '../middlewares/requestValidators';
 
 export const router = Router();
 
-router.post('/logs', challengeAuthentication, validateRequest, handleHttpRequest);
 /**
- * @description: using query params consist of : logID, level, source (eg: hostname, ip, or apps)
+ * @param (logsid) only use at delete method
+ * @query (/api/v1/logs?): (query-props) = logtype, take 
  */
-router.get('/logs', challengeAuthentication, handleHttpRequest);
-/**
- * @param: logid / document ID based on mongodb ID
- */
-router.delete('/logs/:logsid?', challengeAuthentication);
+router.use('/logs/:logsid?', challengeAuthentication, validateRequest, handleHttpRequest);
 /**
  * Error Handling Middleware
  */
