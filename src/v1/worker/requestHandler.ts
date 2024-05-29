@@ -18,6 +18,16 @@ export const processingData = async (args: DataProcessingArguments): Promise<voi
         next(new Error(`Cannot process on empty request - ${req.originalUrl}`));
         return;
     }
+    /**
+     * TODO!
+     * * We need a token or reference ID to prevent duplicate payloads from being 
+     * * stored in case of a noAck message being resend.
+     */
+    if (args.protocol == 'amqp' && args.method == 'POST') {
+        if (await Logging.duplicateLogTicket(args.body.logTicket)) {
+            return;
+        }
+    }
 
     try {
         const taskMap = {

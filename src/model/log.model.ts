@@ -22,6 +22,7 @@ export default class Logging {
             });
             return response;
         } catch (error: any) {
+            console.log(error)
             prismaErrHandler(error)
         }
     }
@@ -71,6 +72,18 @@ export default class Logging {
                     }
                 })
             })
+        } catch (error: any) {
+            prismaErrHandler(error)
+        }
+    }
+    static duplicateLogTicket = async (ticket: string): Promise<boolean | undefined> => {
+        try {
+            const count = await DB.eventLogs.count({
+                where: {
+                    logTicket: ticket
+                }
+            })
+            return count > 0 ? true : false
         } catch (error: any) {
             prismaErrHandler(error)
         }
