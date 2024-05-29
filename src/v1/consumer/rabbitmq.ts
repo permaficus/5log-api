@@ -45,7 +45,7 @@ export const consumerInit = async () => {
                  * * We need a token or reference ID to prevent duplicate payloads from being 
                  * * stored in case of a connection failure on RabbitMQ.
                  */
-
+                let hasError = false;
                 /** deconstructing message payload */
                 const { task, origin, payload }: MessagePayload = JSON.parse(msg.content);
                 /**
@@ -58,10 +58,12 @@ export const consumerInit = async () => {
                             routingKey: origin.routingKey || DEFAULT_5LOG_REPLY_ROUTE,
                             message: JSON.parse(error)
                         })
-                        channel.ack(msg)
-                        return;
-                    }
+                        channel.ack(msg);
+                        hasError = true;
+                    };
                 });
+
+                if (hasError) return;
 
                 try {
                     // start processing incomming message
@@ -101,6 +103,7 @@ export const consumerInit = async () => {
         );
     });
     rbmq.on('error', error => {
+        console.log(error)
         console.info(chalk.red(`[RABBIT-MQ] Error: ${error.message}`))
     })
     rbmq.on('reconnect', attempt => {

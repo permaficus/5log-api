@@ -10,6 +10,7 @@ const validator = async (schema: any, payload: any) => {
 const _template_: any = {
     logLevel: Joi.string().label('Log Level').required(),
     logTicket: Joi.string().label('Log Ticket'),
+    client_id: Joi.string().label('Client ID'),
     source: Joi.object().label('Log Source').required(),
     eventCode: Joi.string().label('Event Code').required(),
     destination: Joi.string().label('Destination field').allow('').default('N/A'),
@@ -19,7 +20,7 @@ const _template_: any = {
 
 const _amqptemplate_: any = {
     task: Joi.string().valid('POST', 'GET', 'DELETE').label('Task').required(),
-    payload: Joi.object(_template_).required(),
+    payload: Joi.object({..._template_}).required(),
     origin: Joi.object({
         queue: Joi.string().label('Queue Name').required(),
         routingKey: Joi.string().label('Message routing key').required(),
@@ -33,7 +34,7 @@ const _amqptemplate_: any = {
 }
 
 const validateSchema = async (payload: any, protocol?: 'amqp' | 'http') => {
-    let schema = protocol !== 'amqp' ? Joi.object(_template_) : Joi.object(_amqptemplate_).fork('payload.logTicket', (field) => field.required())
+    let schema = protocol == 'http' ? Joi.object(_template_) : Joi.object(_amqptemplate_).fork(['payload.logTicket', 'payload.client_id'], (field) => field.required())
     return await validator(schema, payload)
 }
 
