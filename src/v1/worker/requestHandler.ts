@@ -11,13 +11,6 @@ export const processingData = async (args: DataProcessingArguments): Promise<voi
     const { logsid }: any = args.body.id_list || args.params || {};
     const { req, res, next }: any = args.protocol;
 
-    if (args.method === 'POST' && typeof args.protocol == 'object') {
-        Object.assign(args.body, { client_id })
-    }
-    if (args.method === 'DELETE' && typeof args.protocol == 'object' && !logsid && Object.entries(args.body).length === 0) {
-        next(new Error(`Cannot process on empty request - ${req.originalUrl}`));
-        return;
-    }
     /**
      * TODO!
      * * We need a token or reference ID to prevent duplicate payloads from being 
@@ -91,6 +84,22 @@ export const processingData = async (args: DataProcessingArguments): Promise<voi
 }
 
 export const handleHttpRequest = async (req: Request, res: Response, next: NextFunction) => {
+    // prevent user for providing param on non-param required routing
+    if (['POST', 'GET'].includes(req.method) && req.params.logsid) {
+        res.status(404);
+        next()
+        return;
+    }
+    // reject request on empty request body
+    if (req.method === 'DELETE' && !req.params.logsid && Object.entries(req.body).length === 0) {
+        next(new Error(`Cannot process on empty request - ${req.originalUrl}`));
+        return;
+    }
+    // assigning client_id into req.body
+    if (req.method === 'POST') {
+        Object.assign(req.body, { client_id: req.headers.client_id })
+    }
+
     await processingData({
         protocol: {
             req,
