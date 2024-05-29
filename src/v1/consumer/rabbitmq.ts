@@ -40,11 +40,6 @@ export const consumerInit = async () => {
         await channel.bindQueue(DEFAULT_5LOG_QUEUE, exchange, DEFAULT_5LOG_ROUTING_KEY)
         await channel.consume(DEFAULT_5LOG_QUEUE, async (msg: any) => {
             if (msg) {
-                /**
-                 * TODO!
-                 * * We need a token or reference ID to prevent duplicate payloads from being 
-                 * * stored in case of a connection failure on RabbitMQ.
-                 */
                 let hasError = false;
                 /** deconstructing message payload */
                 const { task, origin, payload }: MessagePayload = JSON.parse(msg.content);
