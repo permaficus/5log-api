@@ -7,8 +7,8 @@ import { errStatusMessage } from "@/v1/middlewares/errHandler";
 
 export const processingData = async (args: DataProcessingArguments): Promise<void> => {
     const { client_id }: any = args.headers || args.body;
-    const { logtype, take } = args.body.filter || args.query;
-    const { logsid }: any = args.body.id_list || args.params;
+    const { logtype, take } = args.body.filter || args.query || {};
+    const { logsid }: any = args.body.id_list || args.params || {};
     const { req, res, next }: any = args.protocol;
 
     if (args.method === 'POST' && typeof args.protocol == 'object') {
