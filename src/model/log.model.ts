@@ -22,7 +22,6 @@ export default class Logging {
             });
             return response;
         } catch (error: any) {
-            console.log(error)
             prismaErrHandler(error)
         }
     }
