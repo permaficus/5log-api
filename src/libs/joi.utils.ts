@@ -11,7 +11,7 @@ const _template_: any = {
     logLevel: Joi.string().label('Log Level').required(),
     logTicket: Joi.string().label('Log Ticket'),
     client_id: Joi.string().label('Client ID'),
-    source: Joi.object().label('Log Source').required(),
+    source: Joi.object().label('Log Source'),
     eventCode: Joi.string().label('Event Code').required(),
     destination: Joi.string().label('Destination field').allow('').default('N/A'),
     environment: Joi.string().label('Environment field').allow('').default('N/A').required(),
