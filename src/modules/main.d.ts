@@ -58,10 +58,10 @@ export interface DataSetInterface {
     logTicket: string
     client_id: string
     logDate: Date
-    source: object | ErrorSourceProps
+    source?: object | ErrorSourceProps
     eventCode: string
     destination?: string
-    environment: string
+    environment?: string
     errorDescription: string
     id_list?: string | string[] | []
 }
