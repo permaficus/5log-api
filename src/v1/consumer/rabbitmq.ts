@@ -49,8 +49,8 @@ export const consumerInit = async () => {
                 await validateIncommingMessage({task, origin, payload}, async (error: any) => {
                     if (error) {
                         await publishMessage({
-                            queue: origin.queue || DEFAULT_5LOG_REPLY_QUEUE,
-                            routingKey: origin.routingKey || DEFAULT_5LOG_REPLY_ROUTE,
+                            queue: origin?.queue || DEFAULT_5LOG_REPLY_QUEUE,
+                            routingKey: origin?.routingKey || DEFAULT_5LOG_REPLY_ROUTE,
                             message: JSON.parse(error)
                         })
                         channel.ack(msg);
