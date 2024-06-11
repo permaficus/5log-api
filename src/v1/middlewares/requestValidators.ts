@@ -4,8 +4,7 @@ import { NextFunction, Request, Response } from "express";
 
 // validation middleware for amqp protocol
 export const validateIncommingMessage = async (msg: MessagePayload, callback: CallbackFunction) => {
-
-    if (Object.entries(msg.payload).length === 0) {
+    if (!msg.payload || !msg.origin || !msg.task) {
         return callback(JSON.stringify({
             status: 'ERR_BAD_REQUEST',
             code: 400,
