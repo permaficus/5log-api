@@ -41,6 +41,14 @@ export const consumerInit = async () => {
         await channel.consume(DEFAULT_5LOG_QUEUE, async (msg: any) => {
             if (msg) {
                 let hasError = false;
+                /** test for valid json parse */
+                try {
+                    JSON.parse(msg.content)
+                } catch (error: any) {
+                    rbmq.emit('error', { message: `Invalid JSON format. Reason: ${error.message}. Aborting...`});
+                    channel.ack(msg)
+                    return;
+                }
                 /** deconstructing message payload */
                 const { task, origin, payload }: MessagePayload = JSON.parse(msg.content);
                 /** getting client_id from message headers */
@@ -102,14 +110,13 @@ export const consumerInit = async () => {
         );
     });
     rbmq.on('error', error => {
-        console.log(error)
-        console.info(chalk.red(`[RABBIT-MQ] Error: ${error.message}`))
+        console.info(chalk.redBright(`[RABBIT-MQ] Error: ${error.message}`))
     })
     rbmq.on('reconnect', attempt => {
         console.info(`[RABBIT-MQ] Retrying connect to: ${chalk.yellow(MESSAGE_BROKER_SERVICE.split('@')[1])}, attempt: ${chalk.green(attempt)}`)
     })
     rbmq.on('ECONNREFUSED', () => {
-        console.error(chalk.red(`[RABBIT-MQ] Connection to ${MESSAGE_BROKER_SERVICE.split('@')[1]} refused`));
+        console.error(chalk.redBright(`[RABBIT-MQ] Connection to ${MESSAGE_BROKER_SERVICE.split('@')[1]} refused`));
         return;
     })
 }
