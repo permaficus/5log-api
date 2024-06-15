@@ -43,6 +43,10 @@ export const consumerInit = async () => {
                 let hasError = false;
                 /** deconstructing message payload */
                 const { task, origin, payload }: MessagePayload = JSON.parse(msg.content);
+                /** getting client_id from message headers */
+                const { client_id } = msg.properties.headers
+                /** assign client_id to current payload */
+                Object.assign(payload, { client_id })
                 /**
                  * Validating incomming message
                  */
