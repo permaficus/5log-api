@@ -1,9 +1,9 @@
-import redis from 'redis'
+import { createClient} from 'redis'
 import { REDIS_URL } from '@/constant/global.config'
 import { RedisArgumentInterface } from '@/modules/main'
 
 export const redisClient = async () => {
-    const client = redis.createClient({
+    const client = createClient({
         url: REDIS_URL
     })
     await client.connect()
