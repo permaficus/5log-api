@@ -11,6 +11,7 @@ export const DEFAULT_5LOG_REPLY_QUEUE = process.env.DEFAULT_5LOG_REPLY_QUEUE || 
 export const DEFAULT_5LOG_REPLY_ROUTE = process.env.DEFAULT_5LOG_REPLY_ROUTE || '5log-responder-route'
 // redis config
 export const REDIS_URL = process.env.REDIS_URL
+export const USE_CACHING = process.env.USE_CACHING
 /**
  * A list for CORS policy
  * Leave empty array to allow from all(*)
