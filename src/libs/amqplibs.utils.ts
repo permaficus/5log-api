@@ -5,7 +5,8 @@ import {
     DEFAULT_5LOG_ROUTING_KEY,
     DEFAULT_5LOG_REPLY_QUEUE,
     DEFAULT_5LOG_REPLY_ROUTE,
-    DEFAULT_5LOG_QUEUE
+    DEFAULT_5LOG_QUEUE,
+    USE_CACHING
 } from '@/constant/global.config';
 import EventEmitter from 'events';
 import { BrokerExchangeInterface, QueueTypeInterface } from '@/modules/main';
@@ -101,5 +102,6 @@ export {
     DEFAULT_5LOG_ROUTING_KEY,
     DEFAULT_5LOG_REPLY_QUEUE,
     DEFAULT_5LOG_REPLY_ROUTE,
-    MESSAGE_BROKER_SERVICE
+    MESSAGE_BROKER_SERVICE,
+    USE_CACHING
 }

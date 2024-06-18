@@ -3,20 +3,26 @@ import { Request, Response, NextFunction } from 'express';
 import { USE_CACHING } from "@/constant/global.config";
 import { sendingHttpResponse } from "../responder/http";
 
+export const fetchFromCache = async (...args: any[]): Promise<{ id: string, cachedData: any}> => {
+    const id = idCompiler({
+        baseId: args[0],
+        query: {...args[1]},
+        params: args.length > 2 ? args[2] : {}
+    });
+    const redis = await redisClient();
+    return {
+        id,
+        cachedData: await redis.get(id)
+    }
+}
 export const readFromCache = async (req: Request, res: Response, next: NextFunction) => {
     if (req.method !== 'GET' || USE_CACHING === 'no') {
         return next();
     }
-    const redis = await redisClient();
-    let objectKey =  idCompiler({
-        baseId: req.headers.client_id,
-        params: req.params,
-        query: { ...req.query }
-    });
-    if (!objectKey) {
+    const { id, cachedData} = await fetchFromCache(req.headers.client_id, req.query, req.params)
+    if (!id) {
         return next();
     }
-    let cachedData = await redis.get(objectKey);
     if (cachedData) {
         sendingHttpResponse({
             res,
