@@ -12,8 +12,8 @@ import { MessagePayload } from "@/modules/main";
 import { processingData } from "@/v1/worker/requestHandler";
 import chalk from 'chalk'
 import { validateIncommingMessage } from "../middlewares/requestValidators";
-import { publishMessage } from "../responder/amqp";
-import { fetchFromCache } from "../middlewares/cache";
+import { publishMessage } from "@/v1/responder/amqp";
+import { fetchFromCache } from "@/v1/middlewares/cache";
 
 export const consumerInit = async () => {
     const rbmq = RabbitMQ();

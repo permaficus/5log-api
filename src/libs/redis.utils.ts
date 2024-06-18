@@ -18,7 +18,8 @@ export const redisCache = async ({command, id, data}: RedisArgumentInterface): P
     const client = await redisClient();
     switch (command) {
         case 'set': {
-            await client.set(id, data, { NX: true, EX: 1800 })
+            // set expiry time at 2 hours (7200 secs)
+            await client.set(id, data, { NX: true, EX: 7200 })
             break
         }
         case 'get': {

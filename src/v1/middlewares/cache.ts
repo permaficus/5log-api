@@ -1,7 +1,7 @@
 import { idCompiler, redisClient } from "@/libs/redis.utils";
 import { Request, Response, NextFunction } from 'express';
 import { USE_CACHING } from "@/constant/global.config";
-import { sendingHttpResponse } from "../responder/http";
+import { sendingHttpResponse } from "@/v1/responder/http";
 
 export const fetchFromCache = async (...args: any[]): Promise<{ id: string, cachedData: any}> => {
     const id = idCompiler({
@@ -19,7 +19,8 @@ export const readFromCache = async (req: Request, res: Response, next: NextFunct
     if (req.method !== 'GET' || USE_CACHING === 'no') {
         return next();
     }
-    const { id, cachedData} = await fetchFromCache(req.headers.client_id, req.query, req.params)
+    const { id, cachedData} = await fetchFromCache(req.headers.client_id, req.query, req.params);
+    console.log(id)
     if (!id) {
         return next();
     }
