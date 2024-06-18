@@ -4,6 +4,8 @@ import { DataProcessingArguments } from "@/modules/main";
 import { sendingHttpResponse } from "@/v1/responder/http";
 import { publishMessage } from "@/v1/responder/amqp";
 import { errStatusMessage } from "@/v1/middlewares/errHandler";
+import { idCompiler, redisCache } from "@/libs/redis.utils";
+import { USE_CACHING } from "@/constant/global.config";
 
 export const processingData = async (args: DataProcessingArguments): Promise<void> => {
     const { client_id }: any = args.headers || args.body;
@@ -42,6 +44,22 @@ export const processingData = async (args: DataProcessingArguments): Promise<voi
             ...args.method == 'POST' && { details: taskMap.response },
             ...args.method == 'GET' && { data: taskMap.response },
             ...args.method == 'DELETE' && { result: `Removing ${taskMap.response.count} data` }
+        }
+        // comparing fetched data from model and redis
+        if (args.method === 'GET' && respondMessage.data && USE_CACHING === 'yes') {
+            const key = idCompiler({
+                baseId: client_id,
+                query: {
+                    logtype: logtype ? logtype : {},
+                    take: take ? take : {}
+                },
+                params: logsid ? logsid : {}
+            });
+            const cachedData = await redisCache({ command: 'get', id: key, data: '' });
+            // if the response data is newer or different than the cached, set new cache for this result
+            if (JSON.stringify(respondMessage.data) !== cachedData) {
+                await redisCache({ command: 'set', id: key, data: JSON.stringify(respondMessage.data)})
+            }
         }
 
         if (typeof args.protocol == 'object') {
