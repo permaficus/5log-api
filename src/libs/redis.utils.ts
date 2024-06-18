@@ -27,10 +27,10 @@ export const redisCache = async ({command, id, data}: RedisArgumentInterface): P
         }
     }
 }
-export const idCompiler = ({ baseId, params, query }: {
+export const idCompiler = ({ baseId, query, params }: {
     baseId: string | string[] | undefined, 
-    params: any, 
-    query: {[key: string]: string | string [] | any}
+    query: {[key: string]: string | string [] | any},
+    params?: any, 
 }): string => {
     let objectId = baseId
     objectId = objectId + `${params.logsid ? `:${params.logsid}`:``}`;
