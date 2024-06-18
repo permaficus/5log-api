@@ -5,13 +5,15 @@ import {
     DEFAULT_5LOG_REPLY_QUEUE,
     DEFAULT_5LOG_REPLY_ROUTE,
     DEFAULT_5LOG_QUEUE,
-    MESSAGE_BROKER_SERVICE
+    MESSAGE_BROKER_SERVICE,
+    USE_CACHING
 } from "@/libs/amqplibs.utils";
 import { MessagePayload } from "@/modules/main";
 import { processingData } from "@/v1/worker/requestHandler";
 import chalk from 'chalk'
 import { validateIncommingMessage } from "../middlewares/requestValidators";
 import { publishMessage } from "../responder/amqp";
+import { fetchFromCache } from "../middlewares/cache";
 
 export const consumerInit = async () => {
     const rbmq = RabbitMQ();
@@ -58,19 +60,39 @@ export const consumerInit = async () => {
                 /**
                  * Validating incomming message
                  */
-                await validateIncommingMessage({task, origin, payload}, async (error: any) => {
-                    if (error) {
-                        await publishMessage({
-                            queue: origin?.queue || DEFAULT_5LOG_REPLY_QUEUE,
-                            routingKey: origin?.routingKey || DEFAULT_5LOG_REPLY_ROUTE,
-                            message: JSON.parse(error)
-                        })
-                        channel.ack(msg);
-                        hasError = true;
-                    };
-                });
+                if (task && task !== 'GET') {
+                    await validateIncommingMessage({task, origin, payload}, async (error: any) => {
+                        if (error) {
+                            await publishMessage({
+                                queue: origin?.queue || DEFAULT_5LOG_REPLY_QUEUE,
+                                routingKey: origin?.routingKey || DEFAULT_5LOG_REPLY_ROUTE,
+                                message: JSON.parse(error)
+                            })
+                            channel.ack(msg);
+                            hasError = true;
+                        };
+                    });
+                }
 
                 if (hasError) return;
+                // fetching data from cache if exist
+                if (task === 'GET' && USE_CACHING === 'yes') {
+                    const {cachedData} = await fetchFromCache(client_id, { logtype: payload.filter.logtype, take: payload.filter.take });
+                    if (cachedData) {
+                        await publishMessage({
+                            queue: origin.queue,
+                            routingKey: origin.routingKey,
+                            message: {
+                                status: 'SUCCESS',
+                                code: 200,
+                                cache: 'HIT',
+                                data: JSON.parse(cachedData)
+                            }
+                        })
+                        channel.ack(msg)
+                        return;
+                    }
+                }
 
                 try {
                     // start processing incomming message
