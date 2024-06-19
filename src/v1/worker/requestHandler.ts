@@ -55,7 +55,6 @@ export const processingData = async (args: DataProcessingArguments): Promise<voi
                 },
                 ...logsid ? { params: logsid } : {}
             });
-            console.log(key)
             const cachedData = await redisCache({ command: 'get', id: key, data: '' });
             // if the response data is newer or different than the cached, set new cache for this result
             if (JSON.stringify(respondMessage.data) !== cachedData) {

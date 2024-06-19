@@ -22,10 +22,12 @@ DEFAULT_5LOG_ROUTING_KEY='5log-routekey'
 DEFAULT_5LOG_REPLY_QUEUE='5log-responder'
 DEFAULT_5LOG_REPLY_ROUTE='5log-responder-route'
 # Redis Config
-REDIS_URL='redis://localhost:6379'
+REDIS_URL='redis://host:6379'
 USE_CACHING='yes' # valid value:: yes | no
 # Webhook Config
 WEBHOOK_RETRY_MAX_ATTEMPT = 3
+# For Swagger
+APP_BASE_URL='http(s)://hostname<:port>'
 ```
 
 ### Installation

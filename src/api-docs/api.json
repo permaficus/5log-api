@@ -1,0 +1,277 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+      "title": "5log API Documentation",
+      "description": "There is only one endpoint for this app, so this should be an easy read. For Message Broker request body requirement, please refer to [readme](https://github.com/permaficus/5log-api#readme) on github.<br> DISCLAIMER! this documentation is still under development, Expect changes in the future",
+      "contact": {
+        "email": "abukhalif2019@gmail.com"
+      },
+      "version": "1.0.0"
+    },
+    "externalDocs": {
+        "description": "Code on github",
+        "url": "https://github.com/permaficus/5log-api"
+    },
+    "servers": [
+      {
+        "url": ""
+      }
+    ],
+    "tags": [
+      {
+        "name": "Endpoints",
+        "description": "Everything about 5log API endpoints"
+      }
+    ],
+    "paths": {
+        "/api/v1/logs": {
+            "get": {
+                "tags": [
+                    "Endpoints"
+                ],
+                "summary": "Get Logs History",
+                "parameters": [
+                    {
+                        "name": "logsid",
+                        "in": "path",
+                        "description": "Log ID for viewing selected log history", 
+                        "required": false
+                    },
+                    {
+                        "name": "logtype",
+                        "in": "query",
+                        "description": "Logging type such as Error, Warning, Info and Debug",
+                        "default": "error",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": ["error", "debug", "info", "warning"]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/GetLogsHistory"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "client_id": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Endpoints"
+                ],
+                "summary": "Storing any logs dumped from 5log SDK or other client",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/definitions/errorPayload"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "client_id": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/definitions/postResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "client_id": {
+                "type": "apiKey",
+                "name": "client_id",
+                "in": "header"
+            }
+        }
+    },
+    "definitions": {
+        "GetLogsHistory": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/LogsHistoryDetails"
+                    }
+                }
+            }
+        },
+        "LogsHistoryDetails": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "66713c5fd2abb5ba15a0ec9c"
+                },
+                "logTicket": {
+                    "type": "string",
+                    "example": "18276ff7-85cf-48d9-b4e5-02a4ad0d63c1"
+                },
+                "logLevel": {
+                    "type": "string",
+                    "example": "ERROR"
+                },
+                "logDate": {
+                    "type": "string",
+                    "example": "2024-06-18T07:50:55.476Z"
+                },
+                "errorDescription": {
+                    "type": "string",
+                    "example": "TypeError: woaaaah this error suck!!!"
+                },
+                "source": {
+                    "type": "object",
+                    "properties": {
+                        "module_name": {
+                            "type": "string",
+                            "example": "myfile.ts"
+                        }
+                    }
+                },
+                "eventCode": {
+                    "type": "string",
+                    "example": "ERR-0007"
+                },
+                "destination": {
+                    "type": "string",
+                    "example": "N/A"
+                },
+                "environment": {
+                    "type": "string",
+                    "example": "development"
+                }
+            }
+        },
+        "errorPayload": {
+            "type": "object",
+            "properties": {
+                "logLevel": {
+                    "type": "string",
+                    "example": "ERROR"
+                },
+                "source": {
+                    "type": "object",
+                    "properties": {
+                        "hostname": {
+                            "type": "string",
+                            "example": "https://app.myhostname.io"
+                        },
+                        "module_name": {
+                            "type": "string",
+                            "example": "index.ts"
+                        }
+                    }
+                },
+                "errorDescription": {
+                    "type": "string",
+                    "example": "ReferrenceError: i dont know what iam doing"
+                },
+                "eventCode": {
+                    "type": "string",
+                    "example": "ERR-0007"
+                },
+                "environment": {
+                    "type": "string",
+                    "example": "development"
+                }
+            }
+        },
+        "postResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "details": {
+                    "$ref": "#/definitions/postResponseDetails"
+                }
+            }
+        },
+        "postResponseDetails": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "<some id>"
+                },
+                "logLevel": {
+                    "type": "string",
+                    "example": "ERROR"
+                },
+                "logDate": {
+                    "type": "string",
+                    "example": "2024-06-19T07:50:55.476Z"
+                },
+                "errorDescription": {
+                    "type": "string",
+                    "example": "ReferrenceError: i dont know what iam doing"
+                },
+                "source": {
+                    "type": "object",
+                    "properties": {
+                        "hostname": {
+                            "type": "string",
+                            "example": "https://app.myhostname.io"
+                        },
+                        "module_name": {
+                            "type": "string",
+                            "example": "index.ts"
+                        }
+                    }
+                },
+                "eventCode": {
+                    "type": "string",
+                    "example": "ERR-0007"
+                },
+                "destination": {
+                    "type": "string",
+                    "example": "N/A"
+                },
+                "environment": {
+                    "type": "string",
+                    "example": "development"
+                }
+            }
+        }
+    }
+}

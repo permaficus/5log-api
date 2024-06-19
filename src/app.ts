@@ -11,7 +11,7 @@ import {
 import chalk from 'chalk'
 
 const main = async (portNumber: number) => {
-  await httpServerInit();
+  await httpServerInit(portNumber);
   httpServer.listen(portNumber, () => {
       console.log(
           `-----------------------------------------
