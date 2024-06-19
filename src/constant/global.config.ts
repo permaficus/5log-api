@@ -12,6 +12,8 @@ export const DEFAULT_5LOG_REPLY_ROUTE = process.env.DEFAULT_5LOG_REPLY_ROUTE || 
 // redis config
 export const REDIS_URL = process.env.REDIS_URL
 export const USE_CACHING = process.env.USE_CACHING
+// swagger url
+export const APP_BASE_URL = process.env.APP_BASE_URL
 /**
  * A list for CORS policy
  * Leave empty array to allow from all(*)
