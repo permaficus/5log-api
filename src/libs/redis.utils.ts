@@ -33,9 +33,5 @@ export const idCompiler = ({ baseId, query, params }: {
     query: {[key: string]: string | string [] | any},
     params?: any, 
 }): string => {
-    let objectId = baseId
-    objectId = objectId + `${params.logsid ? `:${params.logsid}`:``}`;
-    objectId = objectId + `${query?.logtype ? `:${query?.logtype}`:``}`;
-    objectId = objectId + `${query?.take ? `:${query?.take}`:``}`;
-    return objectId
+    return `${baseId}${params?.logsid ? `:${params?.logsid}`:``}${query?.logtype ? `:${query?.logtype}`:``}${query?.take ? `:${query?.take}`:``}`
 }

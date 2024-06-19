@@ -50,11 +50,12 @@ export const processingData = async (args: DataProcessingArguments): Promise<voi
             const key = idCompiler({
                 baseId: client_id,
                 query: {
-                    logtype: logtype ? logtype : {},
-                    take: take ? take : {}
+                    ...logtype ? { logtype } : {},
+                    ...take ? { take } : {}
                 },
-                params: logsid ? logsid : {}
+                ...logsid ? { params: logsid } : {}
             });
+            console.log(key)
             const cachedData = await redisCache({ command: 'get', id: key, data: '' });
             // if the response data is newer or different than the cached, set new cache for this result
             if (JSON.stringify(respondMessage.data) !== cachedData) {

@@ -20,7 +20,6 @@ export const readFromCache = async (req: Request, res: Response, next: NextFunct
         return next();
     }
     const { id, cachedData} = await fetchFromCache(req.headers.client_id, req.query, req.params);
-    console.log(id)
     if (!id) {
         return next();
     }
