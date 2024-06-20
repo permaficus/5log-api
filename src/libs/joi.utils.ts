@@ -34,7 +34,7 @@ const _amqptemplate_: any = {
 }
 
 const validateSchema = async (payload: any, protocol?: 'amqp' | 'http') => {
-    let schema = protocol == 'http' ? Joi.object(_template_) : Joi.object(_amqptemplate_).fork(['payload.logTicket', 'payload.client_id'], (field) => field.required())
+    let schema = protocol === 'http' ? Joi.object(_template_) : Joi.object(_amqptemplate_).fork(['payload.logTicket', 'payload.client_id'], (field) => field.required())
     return await validator(schema, payload)
 }
 
