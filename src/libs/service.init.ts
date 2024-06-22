@@ -24,7 +24,7 @@ const httpServerInit = async (port?: number) => {
                 return callback(error, false)
             }
             return callback(null, true)
-        }} : {}
+        }, credentials: true } : {}
     }));
     apiDocs.servers[0].url = `${APP_BASE_URL}:${port}`
     httpServer.use('/api-docs', SwaggerUI.serve, SwaggerUI.setup(apiDocs, { customSiteTitle: '5log API Documentation' }))
